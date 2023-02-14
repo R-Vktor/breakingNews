@@ -6,8 +6,8 @@ const connectDatabase = () => {
     console.log("wait connecting database")
 
     mongoose
-        .connect(
-            "mongodb+srv://victor:xJBNGEGnPcTFGSi7@breakingnews.zudaxla.mongodb.net/?retryWrites=true&w=majority", 
+        .connect( 
+            process.env.MONGODB_URI, 
             {useNewUrlParser: true, useUnifiedTopology: true, }
         ).then(() => console.log("MongoDB Atlas Connected")).catch((error) => console.log(error))
 

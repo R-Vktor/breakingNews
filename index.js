@@ -1,7 +1,17 @@
-import express from 'express';
+import express from "express";
 const app = express();
-import connectDatabase from './src/database/db.js'
-import userRoute from './src/routes/user.route.js'
+import connectDatabase from "./src/database/db.js"
+import userRoute from "./src/routes/user.route.js"
+
+// como temos a conexao com o banco de dados usando 
+// o dotenv e sendo executada aqui no 'index.js' 
+// entao é aqui que devemos habilitar o 'dotenv', 
+// assim dessa forma todo e qualquer arquivo que usar 
+// o 'dotenv' desde que seja executado aqui em 'index.js'
+//  poderá usar essa configuracao, nao sendo necessário
+// adicionar ele individualmente em cada arquivo.
+import dotenv from "dotenv"
+dotenv.config();
 
 /*
 temos dois tipos de sistema de importacao de arquivos, o 'CommonJS' - const express = require("express") e a exportacao 'module.exports = algumacoisa';
@@ -27,13 +37,16 @@ app.use(express.json())
 app.use("/user", userRoute) // tudo que for referente ao usuario a nradas das requisicoes serao por aqui e passadas para o controller pertinente.
 
 
-
+// desta forma ja deixamos pronto para que quando 
+//formos subir para o servidor a aplicacao possa 
+//definir o ambiente onde esta rodando. Por padrao 
+// todo servidor vai disponibilizar uma porta dentro 
+// da variável 'PORT', portanto fica a cargo do servidor 
+// disponibilizar essa variável com o seu devido conteudo, nao criamos ela. 
+const port = process.env.PORT || 3000;
 const msg = "localhost:3000";
 
-const port = 3000;
 
 app.listen(port, () => {
     console.log(`Servidor rodando em ${msg}`)
 }); 
-
-
