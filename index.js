@@ -1,9 +1,26 @@
-import express from "express";
-import connectDatabase from "./src/database/db.js"
-import dotenv from "dotenv"
+/*
+temos dois tipos de sistema de importacao de arquivos, o 'CommonJS' - const express = require("express") e a exportacao 'module.exports = algumacoisa';
+e o ecma trás em sua especificacao a indicaçao do uso do 'es module' 
+que é a forma mais moderna de fazer importacao e exportacao aqui no node. Fica de seguinte forma 
+'import express from "express" e a exportacao exports dafault algumacoisa ou quando temos mais de uma funcioanlidade para exportar tiramos o 'default' e colocamos dentro de chaves - export {}';
+Contudo existe uma pequena mudança, temos agora que colocar a extencao do arquivo, os pacotes continua igual ao que era antes
+IMPORTANTE: quando estamos trabalhando com o import e export do 'ES mudules' 
+temos que nos atentar ao fato de quando exportamos funcionalidades desestruturadas 
+usando 'export default' temos que necessáriamente importar no arquivo 
+pertinente com "um nome só" e usar como se fosse uma classe acessando 
+seus metodos com notacao de ponto.
+Já se exportar-mos usando apenas 'export' podemos importar no arquivo pertinente desconstruindo e nomeando cada funcao para usar separadamente.   
 
-import userRoute from "./src/routes/user.route.js"
-import authRoute from "./src/routes/auth.route.js"
+*/
+
+
+import express from "express";
+import connectDatabase from "./src/database/db.js";
+import dotenv from "dotenv";
+
+import userRoute from "./src/routes/user.route.js";
+import authRoute from "./src/routes/auth.route.js";
+import newsRoute from "./src/routes/news.route.js";
 
 // como temos a conexao com o banco de dados usando 
 // o dotenv e sendo executada aqui no 'index.js' 
@@ -13,14 +30,6 @@ import authRoute from "./src/routes/auth.route.js"
 //  poderá usar essa configuracao, nao sendo necessário
 // adicionar ele individualmente em cada arquivo.
 dotenv.config();
-
-/*
-temos dois tipos de sistema de importacao de arquivos, o 'CommonJS' - const express = require("express") e a exportacao 'module.exports = algumacoisa';
-e o ecma trás em sua especificacao a indicaçao do uso do 'es module' 
-que é a forma mais moderna de fazer importacao e exportacao aqui no node. Fica de seguinte forma 
-'import express from "express" e a exportacao exports dafault algumacoisa ou quando temos mais de uma funcioanlidade para exportar tiramos o 'default' e colocamos dentro de chaves - export {}';
-Contudo existe uma pequena mudança, temos agora que colocar a extencao do arquivo, os pacotes continua igual ao que era antes
-*/
 
 
 const app = express();
@@ -39,6 +48,7 @@ connectDatabase();
 app.use(express.json()) 
 app.use("/user", userRoute) // tudo que for referente ao usuario a nradas das requisicoes serao por aqui e passadas para o controller pertinente.
 app.use("/auth", authRoute) 
+app.use("/news", newsRoute) 
 
 // desta forma ja deixamos pronto para que quando 
 //formos subir para o servidor a aplicacao possa 

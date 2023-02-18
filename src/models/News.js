@@ -18,9 +18,9 @@ const NewsSchema = new mongoose.Schema({
         default: Date.now(), // no campo 'createdAt' colocaremos a data em que esse dado foi inserido no banco
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+        type: mongoose.Schema.Types.ObjectId, // tipo do dado que vai ser usado para fazer o relacionamento
+        ref: "User", // nome do model da collecion que vai ter um relacionamento com essa collection.
+        required: true,
     },
     like: {
         type: Array,
