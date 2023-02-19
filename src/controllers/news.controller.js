@@ -1,8 +1,37 @@
 import { createService, findAllService } from "../services/news.service.js";
 
+/*
+para a parte de autorização o frontend vai enviar o 'jwt token' junto da 
+requisicao no header para que possamos verificar se o usuario é ou nao 
+autenticado.
+*/
+
 const create = async(req, res) => {
 
     try{
+        const {authorization} = req.headers;
+        console.log(authorization);
+
+        if(!authorization) {
+            return res.status(401).send();
+        }
+
+        // fazendo destructuring para separar o 'Bearer' do restante do token,
+        // pois ele vem separados por espaço.
+        const parts = authorization.split(" ");
+
+        if(parts.length !== 2) {
+            return res.send(401)
+        }
+
+        // os nomes dados aos pedaçoes desestruturados ficam ao seu criterio.
+        const [schema, token] = parts;
+
+        // verificando se a variavel que deve conter o nome 'Bearer' foi preenchida com ele mesmo
+        if(schema !== "Bearer") {
+            return res.send(401);
+        }
+
         const { title, text, banner } = req.body;
 
         if(!title || !banner || !text) {
