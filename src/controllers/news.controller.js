@@ -9,29 +9,6 @@ autenticado.
 const create = async(req, res) => {
 
     try{
-        const {authorization} = req.headers;
-        console.log(authorization);
-
-        if(!authorization) {
-            return res.status(401).send();
-        }
-
-        // fazendo destructuring para separar o 'Bearer' do restante do token,
-        // pois ele vem separados por espaço.
-        const parts = authorization.split(" ");
-
-        if(parts.length !== 2) {
-            return res.send(401)
-        }
-
-        // os nomes dados aos pedaçoes desestruturados ficam ao seu criterio.
-        const [schema, token] = parts;
-
-        // verificando se a variavel que deve conter o nome 'Bearer' foi preenchida com ele mesmo
-        if(schema !== "Bearer") {
-            return res.send(401);
-        }
-
         const { title, text, banner } = req.body;
 
         if(!title || !banner || !text) {
@@ -44,7 +21,13 @@ const create = async(req, res) => {
             title,
             text,
             banner,
-            user: { _id: "63ead0722a447bb4793eb9a9"} // este parametro esta sendo setado diretamente para fins de teste, mas como funcionalidade padrao é necessário capturar o dado vindo do 'req.body'
+            // agora que temos autenticacao e autorizacao, e o middleware 
+            // de verificacao da authorization colocando o 'id' 
+            // decodificado no objeto do 'req' podemo capturálo aqui 
+            // para poder completar o campo de 'id',  pois dessa forma
+            // signifca que o usuário foi devidamente autenticado para 
+            // poder fazer essa ascao de insersao no banco.
+            user: req.userId,
         })
 
         res.send(201);
