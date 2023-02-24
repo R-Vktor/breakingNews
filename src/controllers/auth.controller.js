@@ -13,7 +13,7 @@ const login = async (req, res) => {
             return res.status(404).send({message: "User or Password not found"})
         }
 
-        const passwordIsValid = bcrypt.compare(password, user.password)
+        const passwordIsValid = bcrypt.compare(password, user.password);
 
         if(!passwordIsValid){
             return res.status(404).send({message: "User or Password not found"})
