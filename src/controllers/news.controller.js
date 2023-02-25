@@ -5,7 +5,8 @@ import {
     topNewsService,
     findByIdService,
     searchByTitleService,
-    byUserService
+    byUserService,
+    updateService
 } from "../services/news.service.js";
 
 /*
@@ -200,7 +201,7 @@ export const searchByTitle = async (req, res) => {
         //vai ser através da contante 'news' que contem 
         //o retorno da busaca no banco que vamo percorrer com o 'map()' 
         return res.send({
-            results: news.map(() => ({
+            results: news.map((item) => ({
                 id: item._id,
                 title: item.title,
                 text: item.text,
@@ -225,7 +226,7 @@ export const byUser = async (req, res) => {
         const news = await byUserService(id);
 
         return res.send({
-            results: news.map(() => ({
+            results: news.map((item) => ({
                 id: item._id,
                 title: item.title,
                 text: item.text,
@@ -237,6 +238,39 @@ export const byUser = async (req, res) => {
                 userAvatar: item.user.avatar,
             }))
         });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+//ATENCAO: verificar como  fazer para distinguir qual poostagem será editada, pois se um usuario possuir mais de uma postagem com a funcionalidade abaixo sendo geral, todas as postagem receberao a atualizada para aquele mesmo campo.
+export const update = async(req, res) => {
+    try {
+        const { title, text, banner } = req.body;
+        const { id } = req.params;
+
+        if (!title && !banner && !text) {
+            res.status(400).send({
+                message: "Submit at least one field to update the post",
+            }); 
+        }
+
+        const news = await findByIdService(id);
+
+        // Aqui nos certificamos que quem está obtendo essa informacoes é o proprio usuário, pois so ele pode editá-las.
+        // temos que converter o 'id' do usuario obtido do objeto 'news' para string pois o 'id' vindo do 'req.' vem no formato string
+        if(String(news.user._id) !== req.userId) {
+            return res.status(400).send({
+                message: "You didn't update this post",
+            });
+        }
+
+        // nao precisa atribuir a uma constante pois essa é uma operacao de atualizacao, neste ponto os dados novos sao enviados para o banco para substituir os antigos
+        await updateService(id, title, text, banner);
+
+        // Após o envio dos dados ao banco devolvemos apenas um menssagem dizendo que a operacao foi bem sucedida!
+        return res.send({ message: "Post successfully updated!" })
+        
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
