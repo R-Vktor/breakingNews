@@ -6,7 +6,8 @@ import {
     findByIdService,
     searchByTitleService,
     byUserService,
-    updateService
+    updateService,
+    eraseService
 } from "../services/news.service.js";
 
 /*
@@ -271,6 +272,31 @@ export const update = async(req, res) => {
         // Após o envio dos dados ao banco devolvemos apenas um menssagem dizendo que a operacao foi bem sucedida!
         return res.send({ message: "Post successfully updated!" })
         
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+export const erase = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const news = await findByIdService(id);
+
+        // esta validacao serve para saber se quemesta requisitando 
+        // essa funcionalidade é o mesmo que está logado, 
+        //sao nao for, entao será negado.
+        if(String(news.user._id) !== req.userId) {
+            return res.status(400).send({
+                message: "You didn't delete this post",
+            });
+        }
+
+        // novamente nao precisamos atribuir a uma constante pois se trata de uma operacao de exclusao, ou seja, se a execucao chegou nesse ponto significa que deu tudo certo, após essa funcao mandamos  uma mensagem informando ao usuário que deu certo a operacao.
+        await eraseService(id);
+
+        return res.send({ message: "Post successfully updated!" });
+
     } catch (err) {
         res.status(500).send({ message: err.message });
     }

@@ -31,4 +31,6 @@ export const searchByTitleService = (title) => News.find({
 // aqui estamos usando o 'id' do usuario que foi obtido no middleware de autenticacao
 export const byUserService = (id) => News.find({ user: id}).sort({ _id: -1}).populate("user")
 
-export const updateService = (id, title, text, banner) => News.findOneAndUpdate({_id: id}, {title, text, banner}, { rewResult: true})
+export const updateService = (id, title, text, banner) => News.findOneAndUpdate({_id: id}, {title, text, banner}, { rewResult: true});
+
+export const eraseService = (id) => News.findByIdAndDelete({ _id: id});
