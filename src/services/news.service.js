@@ -34,3 +34,14 @@ export const byUserService = (id) => News.find({ user: id}).sort({ _id: -1}).pop
 export const updateService = (id, title, text, banner) => News.findOneAndUpdate({_id: id}, {title, text, banner}, { rewResult: true});
 
 export const eraseService = (id) => News.findByIdAndDelete({ _id: id});
+
+export const likeNewsService = (idNews, userId) => News.findOneAndUpdate(
+    { _id: idNews, "likes.userId": { $nin: [userId]}}, // nesta linha vai ter uma validadao - começaremos pelo filtro que vai ser o 'id' da postagem para que ela seja encontrada, na sequencia acessaremos 'likes.userId' para verificar se no 'pool' de "id's" que ja deram like possui o 'id' do usuario que esta tentando dar like no presente momento,para isso faremos uso da funcao do proprio mongoose "$nin" que é um metodo que fará essa verificacao, caso ja exista o id registrado o metodo vai retornar um erro, caso contrário, vai permitir passar para a linah de baixo que é a query de insercao do novo objeto.
+    { $push: { likes: { userId, created: new Date()}}}// nesta linha estamos adicionando um objeto em 'likes' que já é um array, portanto ele será um array de objetos que vai conter o 'id' do usuario que deu o like e a data de quando foi dado o like. Esta query fará justamente isso, depois de passar por uma validacao será inserido esse array dentro de 'likes' através do metodo do proprio mongoose para isersao de objetos e eementos em array "$push".
+);
+
+export const deleteLikeNewsService = (idNews, userId) => News.findOneAndUpdate(
+    { _id: idNews, }, // nesta linha estamos localizando a noticia
+    { $pull: { likes: { userId, }}} //neste ponto usaremos o metodo do proprio mongoose '$pull' para remover o registro do usuario no poll de users que deram like
+
+);

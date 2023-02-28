@@ -22,7 +22,7 @@ const NewsSchema = new mongoose.Schema({
         ref: "User", // nome do model da collecion que vai ter um relacionamento com essa collection.
         required: true,
     },
-    like: {
+    likes: {
         type: Array,
         require: true,
     },

@@ -7,7 +7,9 @@ import {
     searchByTitleService,
     byUserService,
     updateService,
-    eraseService
+    eraseService,
+    likeNewsService,
+    deleteLikeNewsService
 } from "../services/news.service.js";
 
 /*
@@ -113,7 +115,7 @@ export const findAll = async(req, res) => {
             offset,
             total,
 
-            results: news.map(() => ({
+            results: news.map((item) => ({
                 id: item._id,
                 title: item.title,
                 text: item.text,
@@ -297,6 +299,30 @@ export const erase = async (req, res) => {
 
         return res.send({ message: "Post successfully updated!" });
 
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+export const likeNews = async (req, res) => {
+
+    try {
+        const { id } = req.params; // este é o id da noticio que estará presente na requisicao atraves dos parametros enviados
+        const userId = req.userId;
+
+        const newsLiked = await likeNewsService(id, userId);
+        
+        // neste ponto vamos já adicionar a funcionalidade de, caso o like ja tenha sido dado pelo usuario vamso desfazer o like, masma logica do instagram!!! 
+        // em javaScript 'null == false' e portanto poderemos usar a verificacao invertida com o 'if'.
+        if (!newsLiked) {
+            await deleteLikeNewsService(id, userId);
+            return res.status(200).send({
+                message: "LIke successfully removed"
+            });
+        }
+
+        res.send({ message: "Like done successfuly" });
+        
     } catch (err) {
         res.status(500).send({ message: err.message });
     }

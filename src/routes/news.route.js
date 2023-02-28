@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { create, findAll, topNews, findById, searchByTitle, byUser, update, erase } from "../controllers/news.controller.js"
+import { create, findAll, topNews, findById, searchByTitle, byUser, update, erase, likeNews } from "../controllers/news.controller.js"
 import { authMiddleware } from "../middlewares/auth.middleware.js"
 
 
@@ -20,6 +20,7 @@ router.get("/byUser", authMiddleware, byUser); // a logica vai ser a seguinte es
 // params sempre por ultimo
 router.get("/:id", authMiddleware, findById);
 router.patch("/:id", authMiddleware, update);
-router.delete("/:id", authMiddleware, erase)
+router.delete("/:id", authMiddleware, erase);
+router.patch("/like/:id", authMiddleware, likeNews);
 
 export default router;
