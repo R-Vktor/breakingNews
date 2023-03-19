@@ -21,6 +21,7 @@ import dotenv from "dotenv";
 import userRoute from "./src/routes/user.route.js";
 import authRoute from "./src/routes/auth.route.js";
 import newsRoute from "./src/routes/news.route.js";
+import swaggerRoute from "./src/routes/swagger.route.js";
 
 // como temos a conexao com o banco de dados usando 
 // o dotenv e sendo executada aqui no 'index.js' 
@@ -49,6 +50,7 @@ app.use(express.json())
 app.use("/user", userRoute) // tudo que for referente ao usuario a nradas das requisicoes serao por aqui e passadas para o controller pertinente.
 app.use("/auth", authRoute) 
 app.use("/news", newsRoute) 
+app.use("/doc", swaggerRoute)
 
 // desta forma ja deixamos pronto para que quando 
 //formos subir para o servidor a aplicacao possa 
@@ -59,8 +61,14 @@ app.use("/news", newsRoute)
 const port = process.env.PORT || 3000;
 
 
-const msg = "localhost:3000";
+let msg = "";
+
+if (port === 3000) {
+    msg = 3000;
+} else {
+    msg = process.env.PORT;
+}
 
 app.listen(port, () => {
-    console.log(`Server is running at ${msg}`)
+    console.log(`Server is running on port ${msg}`)
 }); 

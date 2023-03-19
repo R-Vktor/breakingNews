@@ -45,3 +45,30 @@ export const deleteLikeNewsService = (idNews, userId) => News.findOneAndUpdate(
     { $pull: { likes: { userId, }}} //neste ponto usaremos o metodo do proprio mongoose '$pull' para remover o registro do usuario no poll de users que deram like
 
 );
+
+// para criar a logica do comentario precisamos criar um document
+// para ele, pois um mesmo usuario pode ter varios comentarios em um post, 
+// portanto precisamos pegar o id do post. A forma escolhida para 
+// criar os dados foi atraves do javaScript puro e depois inserir 
+//as variáveis no document da postagem via metodo do proprio mongoose "$push".
+// Vamos criar um "id" usando a data do momento da postagem que vai passar pelo 
+// metodo "Math.floor()" e tudo isso sendo transformado em uma string.
+export const addCommentService = (idNews, comment, userId) => {
+    
+    const idComment = Math.floor(Date.now() * Math.random()).toString(36);
+
+    return News.findOneAndUpdate(
+        { _id: idNews },
+        {
+            $push: {
+                comments: { idComment, userId, comment, createdAt: new Date() },
+            },
+        }
+    );
+
+}
+
+export const deleteCommentService = (idNews, idComment, userId) => News.findOneAndUpdate(
+    { _id: idNews },
+    { $pull: { comments: { idComment, userId}}}
+);

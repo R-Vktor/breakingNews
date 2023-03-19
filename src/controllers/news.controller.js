@@ -9,7 +9,9 @@ import {
     updateService,
     eraseService,
     likeNewsService,
-    deleteLikeNewsService
+    deleteLikeNewsService,
+    addCommentService,
+    deleteCommentService
 } from "../services/news.service.js";
 
 /*
@@ -323,6 +325,178 @@ export const likeNews = async (req, res) => {
 
         res.send({ message: "Like done successfuly" });
         
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+}
+
+export const addComment = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const userId = req.userId;
+        // sempre quando vamos pegar as informacoes de um formulario enviado, elas vem pelo body
+        const { comment } = req.body; // capturando o commentario desconstruido evitamos de inserir o objeto no registro, descontruindo enviamos apenas seu 'conteudo' que é, o que realmente importa
+
+    if (!comment) {
+        return res.status(400).send({ message: "Write a message to comment"});
+    } 
+
+    await addCommentService(id, comment, userId);
+
+    res.send({
+        message: "Comment successfully completed!",
+    })
+
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
+
+}
+
+
+/* existe uma falha de logica nesta funcionalidade, pois neste, 
+a especificacao do cliente é de a postagem so possa ser excluida pelo 
+proprio usuario que o fez, para isso é necessario fazer uma busca no 
+banco de dados e capturar o 'id' do usuario que fez a postagem e comparar
+o 'id' de retorno dessa query com o 'id' que esta sendo recebido na request,
+porem na presente logica o intrutor ja dá um 'pull' sem fazer essa verificacao e somente depois ele faz essa verificacao somente para enviar uma mensagem 
+
+*/
+export const deleteComment = async (req, res) => {
+    try {
+        const { idNews, idComment } = req.params;
+        const userId = req.userId;
+
+        //console.log(`dado vindo de req.params ${idComment}, ${idNews}, ${userId}`)
+        //console.log(`Conteudo de req.params ${req.params}`)
+
+        // esta constante vai receber de o retorno que vai ser o proprio registro referente a news que contem o comentário
+        const commentDeleted = await deleteCommentService(idNews, idComment, userId);
+        console.log(`conteudo de commentDeleted ${commentDeleted}`);
+
+        // nesta linha vamos pegar o retorno da operacao do banco e procurar dentro do objeto o campo 'idComment' e verificar se é o mesmo que está sendo recebido na requisicao
+        const commentFinder = commentDeleted.comments.find(
+            (comment) => comment.idComment === idComment
+        );
+
+        console.log(`conteudo de commentFinder ${commentFinder}`)
+
+        // neste ponto estamos verificando se o idComment na requisicao é
+        // existente, se for na busca da linha aterior a constante "commentFinder" 
+        //vai ter recebido seu objeto depois de ter precorrido o array de objetos proveniente da operacao no banco.
+        if (!commentFinder) {
+            return res.status(404).send({ message: "Comment not found" });
+        }
+            
+        console.log(`conteudo de commentFinder.userId ${commentFinder.userId} esse é o conteudo  de user, vindo do req body ${userId}`)
+
+        // ******************************************************
+        // Every ObjectId instance supports the equals method allowing 
+        //you to provide your comparison value. The MongoDB Node.js driver 
+        //resolves the given argument value and compares them.
+        
+        //const isEqual = user._id.equals(oid)
+
+        const isEqual = commentFinder.userId._id.equals(userId)
+
+        if (isEqual !== true) {
+            return res.status(400).send({ message: "You can't delete this comment" })
+        }
+
+        res.send({
+            message: "Comment successfully removed!",
+        })
+
+        
+        /*
+         //neste ponto da execucao precisamos verificar se o usuario que esta tentando apagar o comentario é o proprio dono do comentario.
+         //!!!O 'if' neste ponto nao esta sendo capaz de analizar se 'commentFinder.userId' e 'userId' são iguais ou nao, quando colocamos para executar o a aplicacao acusa que os "Id's" sao diferentes mas permite que seja excluida a mensagem
+        let idBanco = commentFinder.userId;
+        idBanco.toString()
+        let idUser = userId.toString();
+
+        if(idBanco === idUser) {
+            res.send({
+                message: "Comment successfully removed!",
+            })
+        } else {
+            return res.status(400).send({ message: "You can't delete this comment" });
+        }
+
+        
+        if(commentFinder.userId !== userId) {
+            return res.status(400).send({ message: "You can't delete this comment" });
+        }
+    
+        */
+
+        /*
+
+        // Neste ponto seguindo sujestoes da comunidade estaremos fazendo um metodo que vai verificar se os objetos em questao sao iguais, pois em JS nao existe um metodo que faça verificacao direta e em profundidade.
+
+        const equals = function (object1, object2) {
+            // Realiza a verificação das propriedades dos objetos.
+            var prop1 = Object.getOwnPropertyNames(object1);
+            var prop2 = Object.getOwnPropertyNames(object1);
+        
+            // Realiza a verificação se ambos objetos possuem o mesmo número de 
+            // propriedades. Caso contrário, já retorna dizendo que são diferentes.
+            if(prop1.length !== prop2.length)
+                return false;
+        
+            // Aqui, está sendo verificado se o objeto possui alguma propriedade.
+            // Será usado quando for chamada a função na sua forma recursiva,
+            // para verificar valores literais.
+            if(prop1.length === 0)
+                if(object1 === object2)
+                    return true;
+                else
+                    return false;
+        
+            // Se forem iguais, realiza uma iteração por todas as propriedades.
+            for(var i = 0; i < prop1.length; i++) {
+            // Guarda o valor da propriedade atual na variável "prop".
+                var prop = prop1[i];
+        
+            // Aqui está o pulo do gato.
+            // Verifica se o valor e o tipo das duas propriedades são iguais.
+            // Se sim, somente pula para a próxima iteração. Caso contrário,
+            // podem ser duas coisas: ou são realmente distintos, ou é um objeto,
+            // que, ao comparar as referências, retorna sempre falso.
+            // Para ter certeza da informação, é chamada a mesma função de forma
+            // recursiva, mandando, por parâmetro, os dois objetos que ficou a dúvida.
+            // Se forem iguais, ou se tiverem mais algum objeto internamente, 
+            // a função continuará a ser chamada recursivamente, até chegar ao
+            // ponto de ser um valor literal. Ou, então, retornará falso, pois não
+            // são iguais.
+            // Caso sejam iguais, a função só continuará para a próxima iteração.
+            // Caso contrário, a função já informa que não são dois objetos iguais.
+                if(object1[prop] !== object2[prop]){
+                    if(equals(object1[prop], object2[prop]))
+                        continue;
+                    else
+                        return false;
+                }
+            }
+            // Se chegou até aqui e aguentou todas as verificações...
+            // Os objetos são iguais!
+            return true;
+        }
+        
+        equals(commentFinder.userId, userId)
+
+        if (isEquals !== true) {
+            return res.status(400).send({ message: "You can't delete this comment" })
+        }
+
+        res.send({
+            message: "Comment successfully removed!",
+        })
+
+        */
+
+        
+
     } catch (err) {
         res.status(500).send({ message: err.message });
     }
