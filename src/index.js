@@ -38,10 +38,10 @@ const app = express();
 // e necessário habilitar o 'JSON' pois quando
 // estamso trabalhando com o API RestFull o padrao é 
 // receber e enviar informacoes no formato JSON e para 
-// que o express posa interpretar os dados que chegam 
+// que o express possa interpretar os dados que chegam 
 // em JSON é necessario habilitar;
 
-// tem que habilitar o 'JSON' antes da habilitacao da arota 
+// tem que habilitar o 'JSON' antes da habilitacao da rota 
 // pois quando o express começa a ler e configurar ele começa 
 // de cima para baixo, portanto ele ja temq que ter habilitado o parser 
 // para JSON antes de internalizar as rotas.
@@ -70,5 +70,5 @@ if (port === 3000) {
 }
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${msg}`)
+    console.log(`Server is running`);
 }); 

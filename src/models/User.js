@@ -62,7 +62,7 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre("save", async function(next) { // este parametro é igual ao do middleware e serve para dizer a funcao que deve presseguir.
     // O 'this' neste contexto faz referencia ao conteudo do 'UserSchema', mais precisamente est acessando o 'password'.
-    // neste ponto estamos subescrevendo a senha pela sua versao encryptada para que seja mandada ao banco de deados.
+    // neste ponto estamos subescrevendo a senha pela sua versao encryptada para que seja mandada ao banco de de dados.
     this.password = await bcrypt.hash(this.password, 10);
     next(); // aqui a aplicacao vai prosseguir
 })
