@@ -1,6 +1,6 @@
 Projeto feito como conclusão do curso de javascript da StartDev.
 
-Porjeto integra os o seguintes conceitos:
+Projeto integra os o seguintes conceitos:
 
 - API Restfull
 - CLean Code
